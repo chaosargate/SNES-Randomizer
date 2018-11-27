@@ -2,14 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import os
+sys.path.append('../')
+from numpy import random
+from src.utils import read_token, read_html, make_api_call, fetch_game_list
+from src.enums import SNES, PS4
 import cherrypy
 import json
-import requests
-sys.path.append('../')
-
-from numpy import random
-from src.utils import read_token, cookie_html
-from src.enums import SNES
 
 
 class SNESRandomizer:
@@ -25,27 +24,7 @@ class SNESRandomizer:
         self.pre_fetch = pre_fetch
         self.token = read_token()
         self.game_mapping = {}
-        self.game_list = self.fetch_game_list(console_id)
-
-    def fetch_game_list(self, console_id):
-        """
-        Fetches the overall list of games.
-        :return: A list of igdb game IDs.
-        """
-        game_list = []
-
-        r_json = self.make_api_call("platforms", console_id)
-
-        for platform in r_json:
-
-            for game in platform.get("games", []):
-
-                game_list.append(game)
-
-                if self.pre_fetch:
-                    self.fetch_game_name(int(game))
-
-        return game_list
+        self.game_list = fetch_game_list(self.token, console_id)
 
     def fetch_game_name(self, game_id):
         """
@@ -56,7 +35,7 @@ class SNESRandomizer:
 
         if game_id not in self.game_mapping:
 
-            r_json = self.make_api_call("games", game_id)
+            r_json = make_api_call("games", self.token, endpoint_id=game_id)
 
             for game in r_json:
 
@@ -65,28 +44,6 @@ class SNESRandomizer:
                 self.game_mapping[game_id] = game_name
 
         return self.game_mapping[game_id]
-
-    def make_api_call(self, endpoint, endpoint_id=None):
-        """
-        Makes an API call to igdb.
-        :param endpoint: The specific endpoint we want to hit.
-        :param endpoint_id: The ID for the endpoint we want.
-        :return: The JSON result of the request to the endpoint.
-        """
-
-        print("Making call to " + endpoint)
-        print("ID: " + str(endpoint_id))
-        headers = {
-            "user-key": self.token,
-            "Accept": "application/json"
-        }
-
-        url = "https://api-endpoint.igdb.com/{endpoint}{id}".format(
-            endpoint=endpoint,
-            id="/" + str(endpoint_id) if endpoint_id else ""
-        )
-        r = requests.get(url, headers=headers)
-        return r.json()
 
     @cherrypy.expose()
     def check_stored_games(self):
@@ -109,14 +66,40 @@ class SNESRandomizer:
         game_id = self.game_list[rand_int]
         game_name = self.fetch_game_name(int(game_id))
 
-        return cookie_html(game_name)
+        return read_html("cookie.html").replace("{game_title}", game_name)
+
+
+class Root:
+    snes = SNESRandomizer(SNES)
+    ps4 = SNESRandomizer(PS4)
+
+    @cherrypy.expose()
+    def index(self, pid=None):
+
+        if pid:
+            pid = int(pid)
+            if pid == SNES:
+                return Root.snes.index()
+            elif pid == PS4:
+                return Root.ps4.index()
+        else:
+            return read_html("index.html")
 
 
 if __name__ == "__main__":
 
     cherrypy.config.update({
-        'server.socket_port': 8080,
+        'server.socket_port': 5112,
         'server.socket_host': "192.168.1.179",
         'response.timeout': 1600000
     })
-    cherrypy.quickstart(SNESRandomizer(SNES))
+
+    conf = {"/css": {"tools.staticdir.on": True,
+                     "tools.staticdir.dir": os.path.abspath("../bin/css"), },
+            '/styles.css':
+                {'tools.staticfile.on': True,
+                 'tools.staticfile.filename': os.path.abspath("../bin/css/styles.css"),
+                 }
+            }
+
+    cherrypy.quickstart(Root(), config=conf)
