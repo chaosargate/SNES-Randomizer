@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
 import cherrypy
 import json
 import requests
+sys.path.append('../')
 
 from numpy import random
 from src.utils import read_token, cookie_html
