@@ -89,8 +89,8 @@ class Root:
 if __name__ == "__main__":
 
     cherrypy.config.update({
-        'server.socket_port': 5112,
-        'server.socket_host': "192.168.1.179",
+        'server.socket_port': 8080,
+        'server.socket_host': "stream.teamfrognugget.com",
         'response.timeout': 1600000
     })
 

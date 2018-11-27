@@ -9,7 +9,7 @@ def read_token():
     token = None
     with open("../bin/token.txt") as token_txt:
         token = token_txt.read()
-    return token
+    return token.strip()
 
 
 def read_html(filename):
