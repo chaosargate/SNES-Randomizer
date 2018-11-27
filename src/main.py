@@ -7,6 +7,7 @@ import requests
 
 from numpy import random
 from src.utils import read_token, cookie_html
+from src.enums import SNES
 
 
 class SNESRandomizer:
@@ -14,7 +15,7 @@ class SNESRandomizer:
     SNES Randomizer class.
     """
 
-    def __init__(self, pre_fetch):
+    def __init__(self, console_id, pre_fetch=False):
         """
         Class initializer.
         :param pre_fetch: Fetch the game-mapping on startup? (This will make tons of requests so its super slow!!!)
@@ -22,16 +23,16 @@ class SNESRandomizer:
         self.pre_fetch = pre_fetch
         self.token = read_token()
         self.game_mapping = {}
-        self.game_list = self.fetch_game_list()
+        self.game_list = self.fetch_game_list(console_id)
 
-    def fetch_game_list(self):
+    def fetch_game_list(self, console_id):
         """
         Fetches the overall list of games.
         :return: A list of igdb game IDs.
         """
         game_list = []
-        # Hardcoded to SNES for now, this is ID 19 according to igdb's listing.
-        r_json = self.make_api_call("platforms", "19")
+
+        r_json = self.make_api_call("platforms", console_id)
 
         for platform in r_json:
 
@@ -116,4 +117,4 @@ if __name__ == "__main__":
         'server.socket_host': "192.168.1.179",
         'response.timeout': 1600000
     })
-    cherrypy.quickstart(SNESRandomizer(False))
+    cherrypy.quickstart(SNESRandomizer(SNES))
