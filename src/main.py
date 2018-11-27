@@ -70,20 +70,24 @@ class SNESRandomizer:
 
 
 class Root:
-    snes = SNESRandomizer(SNES)
-    ps4 = SNESRandomizer(PS4)
+
+    console_map = {
+            SNES: SNESRandomizer(SNES),
+            PS4: SNESRandomizer(PS4)
+    }
+    #snes = SNESRandomizer(SNES)
+    #ps4 = SNESRandomizer(PS4)
 
     @cherrypy.expose()
     def index(self, pid=None):
 
         if pid:
             pid = int(pid)
-            if pid == SNES:
-                return Root.snes.index()
-            elif pid == PS4:
-                return Root.ps4.index()
-        else:
-            return read_html("index.html")
+
+            if pid in Root.console_map:
+                return Root.console_map[pid].index()
+        
+        return read_html("index.html")
 
 
 if __name__ == "__main__":
