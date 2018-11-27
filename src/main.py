@@ -3,8 +3,10 @@
 
 import cherrypy
 import json
-from numpy import random
 import requests
+
+from numpy import random
+from src.utils import read_token, cookie_html
 
 
 class SNESRandomizer:
@@ -18,19 +20,9 @@ class SNESRandomizer:
         :param pre_fetch: Fetch the game-mapping on startup? (This will make tons of requests so its super slow!!!)
         """
         self.pre_fetch = pre_fetch
-        self.token = self.read_token()
+        self.token = read_token()
         self.game_mapping = {}
         self.game_list = self.fetch_game_list()
-
-    def read_token(self):
-        """
-        Reads the token.txt file from the bin folder and stores that as the auth-key.
-        :return: The token string.
-        """
-        token = None
-        with open("../bin/token.txt") as token_txt:
-            token = token_txt.read()
-        return token
 
     def fetch_game_list(self):
         """
@@ -114,8 +106,7 @@ class SNESRandomizer:
         game_id = self.game_list[rand_int]
         game_name = self.fetch_game_name(int(game_id))
 
-        return json.dumps({"id": game_id,
-                           "name": game_name})
+        return cookie_html(game_name)
 
 
 if __name__ == "__main__":
