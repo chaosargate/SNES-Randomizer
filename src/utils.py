@@ -62,3 +62,17 @@ def fetch_game_list(token, console_id):
             game_list.append(game)
 
     return game_list
+
+
+def make_console_links(console_map):
+    links = ""
+    for i, console_id in enumerate(console_map):
+        console = console_map[console_id]
+        href = "?pid={id}".format(id=console_id)
+        link = "<a class ='console' href='{href}'>{name}</a>".format(
+            href=href,
+            name=console.get_name()
+        )
+        links += link
+    return links
+
