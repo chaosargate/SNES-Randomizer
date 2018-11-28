@@ -5,7 +5,7 @@ def read_file(filename):
     file_txt = ""
     with open("../bin/{filename}".format(filename=filename)) as file_str:
         file_txt = file_str.read()
-    return file_txt
+    return file_txt.strip()
 
 
 def make_api_call(endpoint, token, endpoint_id=None):
