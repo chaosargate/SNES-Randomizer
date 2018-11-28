@@ -18,9 +18,14 @@ class Root:
 
     console_map = {}
 
-    for p_index, platform_id in enumerate(platforms):
+    sorted_platforms = sorted(platforms, key=platforms.get)
+    for platform_id in sorted_platforms:
         if platform_id not in console_map:
             console_map[platform_id] = GameRandomizer(platform_id, token)
+
+#    for p_index, platform_id in enumerate(platforms):
+ #       if platform_id not in console_map:
+  #          console_map[platform_id] = GameRandomizer(platform_id, token)
 
     @cherrypy.expose()
     def index(self, pid=None):
@@ -29,7 +34,7 @@ class Root:
             if pid in Root.console_map:
                 return Root.console_map[pid].index()
 
-        links = make_console_links(Root.console_map)
+        links = make_console_links(Root.console_map, Root.sorted_platforms)
         index_html = read_file("index.html").replace("{links}", links)
         return index_html
 

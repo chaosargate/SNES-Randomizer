@@ -53,9 +53,9 @@ def fetch_game_list(token, console_id):
     return game_list
 
 
-def make_console_links(console_map):
+def make_console_links(console_map, sorted_ids):
     links = ""
-    for i, console_id in enumerate(console_map):
+    for console_id in sorted_ids:
         console = console_map[console_id]
         href = "?pid={id}".format(id=console_id)
         link = "<a class ='console' href='{href}'>{name}</a>".format(
