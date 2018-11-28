@@ -1,22 +1,11 @@
 import requests
 
 
-def read_token():
-    """
-    Reads the token.txt file from the bin folder and stores that as the auth-key.
-    :return: The token string.
-    """
-    token = None
-    with open("../bin/token.txt") as token_txt:
-        token = token_txt.read()
-    return token.strip()
-
-
-def read_html(filename):
-    html = ""
-    with open("../bin/{filename}".format(filename=filename)) as html_file:
-        html = html_file.read()
-    return html
+def read_file(filename):
+    file_txt = ""
+    with open("../bin/{filename}".format(filename=filename)) as file_str:
+        file_txt = file_str.read()
+    return file_txt
 
 
 def make_api_call(endpoint, token, endpoint_id=None):
@@ -75,4 +64,3 @@ def make_console_links(console_map):
         )
         links += link
     return links
-
